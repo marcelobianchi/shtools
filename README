@@ -1,0 +1,8 @@
+This is a collection of packages to convert to and from Q file format.
+
+Subpackages:
+
+s2s:      ## SAC2SH shell script from orfeus
+sac2sh:   ## My alpha version of the sac2sh 
+sh2sac:   ## My sh2sac version 0.5 released
+

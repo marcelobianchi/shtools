@@ -1,0 +1,120 @@
+1. How the Headers variables are mapped inside the code.
+   Basically look for an OK flag near the qf column.
+
+LONG
+maxauto: 27,  maxmem: 30,  maxfile: 200
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+      LENGTH  auto-load    1   ok1 
+       ALLOC   mem-only   27     -  
+      DSPFST   mem-only   28     -  
+      DSPCNT   mem-only   29     -  
+
+
+INTEGER
+maxauto: 26,  maxmem: 30,  maxfile: 500
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+       RECNO   mem-only   26     -   
+      ATTRIB   mem-only   27     -
+   REDUCTION   mem-only   28     -
+        SIGN  auto-load    6    11
+     EVENTNO  auto-load    7  ok12
+        MARK  auto-load    8    14
+
+
+BYTE (q-type INT)
+maxauto: 20,  maxmem: 20,  maxfile: 500
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+
+REAL
+maxauto: 53,  maxmem: 60,  maxfile: 500
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+       DELTA  auto-load    0   ok0   
+      MAXVAL   mem-only   53     -   
+      MINVAL   mem-only   54     -   
+        NORM   mem-only   55     -   
+        ZOOM   mem-only   56     -
+    T-ORIGIN   mem-only   57     -
+    S-ORIGIN   mem-only   58     -   
+      WEIGHT   mem-only   59     -
+       CALIB  auto-load    1  ig26
+    DISTANCE  auto-load    2  ok11
+     AZIMUTH  auto-load    4  ok12
+    SLOWNESS  auto-load    3  ok18-user7 (is just mapped, keep the same units !)
+        INCI  auto-load   12  ok13-user1 
+       DEPTH  auto-load   13  ok14 (ATTENTION: we write the depth in kilometers,
+                                    oposing sac manual that says depth must be in meters )
+   MAGNITUDE  auto-load   14  ok15
+         LAT  auto-load   15  ok16
+         LON  auto-load   16  ok17
+    SIGNOISE  auto-load   17    22
+        PWDW  auto-load   18    23
+      DCVREG  auto-load   19    24
+     DCVINCI  auto-load   20    25
+
+STRING
+maxauto: 19,  maxmem: 20,  maxfile: 300
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+     COMMENT  auto-load    0     0
+     STATION  auto-load    1  ok 1
+      OPINFO  auto-load    2     2   
+        FILE   mem-only   19     -   
+      FILTER  auto-load   10    11
+     QUALITY  auto-load   11    12
+
+
+CHAR
+maxauto: 39,  maxmem: 40,  maxfile: 160
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+        COMP  auto-load    0  ok 0
+       CHAN1  auto-load    1     1
+       CHAN2  auto-load    2     2
+
+
+TIME (q-type STR)
+maxauto: 15,  maxmem: 15,  maxfile: 300
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+       START  auto-load    0  ok21
+     P-ONSET  auto-load    1  ok22
+     S-ONSET  auto-load    2  ok23
+      ORIGIN  auto-load    3  ok24
+
+
+FLAG (q-type CHAR)
+maxauto: 4,  maxmem: 16,  maxfile: 160
+        info    storage   sh    qf
+        name       type  idx   num
+     -----------------------------
+        QUAL   mem-only    4     -   
+     NOCALIB   mem-only    5     -   
+       MODIF   mem-only    6     -   
+       FROMQ   mem-only    7     -   
+     OVERLAY   mem-only    8     -   
+    AMPLICUT   mem-only    9     -
+      USFLG1   mem-only   10     -   
+      USFLG2   mem-only   11     -   
+
+
+2. Regards units: 
+
+ We try not to change the units, so you may end-up with a sac file with
+ units like you want.
+   . Depth is not converted, so in seismic handler we use km, and we write
+     sac in km oposing to the sac manual that instruct us to use meters.
+
+   . Take care with converting slowness, normally in SH the slowness is in
+     s/deg so we pass it like it is to sac -> user7 
+

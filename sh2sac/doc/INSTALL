@@ -1,0 +1,34 @@
+COMPILE
+=======
+
+To compile just type make. 
+
+INSTALL
+=======
+To install adjust the location where you want to install inside the Makefile 
+and just type 'make install'.
+
+USAGE
+=====
+
+Type sh2sac and it will show you a little help.
+But basically you should do:
+
+1. If you have seismic handler instaled and wants 
+   stations coordinates to be filled
+
+sh2sac -h <QHD file> -b <QBN file> -stash
+
+2. If you don't need station coordinates filled
+
+sh2sac -h <QHD file> -b <QBN file> 
+
+3. If you DONT have seismic handler instaled, and you 
+   want coordinates, them you must prepare a 4 column mode file
+   and type:
+   
+   sh2sac -h <QHD file> -b <QBN file> -sta mycoordinatefile.txt
+
+lucky ! 
+marcelob
+<m_tchelo@yahoo.com>

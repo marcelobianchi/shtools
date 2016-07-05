@@ -1,0 +1,45 @@
+This is the release notes for sh2sac
+
+0.5.3 (25/07/2010)
+ * [mbianchi] Correction on how the station name is handled. Now a station name
+    can have up 8 characters, has expected from the sac headers.
+
+0.5.2 (09/08/2010)
+ * [mbianchi] Minor correction on messages on the screen. "." removed from
+   the name of the output file on debug mode. Added \n for messagem in
+   generate name methods.
+   Fix Email on INSTALL/README file.
+
+0.5.1 (19/05/2009)
+ * [mbianchi] Minor correction on the help text.
+
+0.5 ? 
+  * [mbianchi] Major correction in the time strings.
+
+0.4 (20/02/2009):
+  * [mbianchi] Added a new separator type "," as described in timeconv.c SH
+    source code. The formats are not so clear, so I assume that the order of
+    variables doesn't change. I assume: DD?MM?YYYY?HH?MM?SS?MMM where ? can 
+    be one of: -_,.: and MM represents the months in names (JAN,FEV,MAR,ABR,
+    MAY,JUN,JUL,AUG,SEP,OCT,NOV,DEC) or number (1 to 12). The mmm represents
+    the decimals seconds (miliseconds).
+
+    It doesn't get very clear for me if the order of the variables fields
+    changes, as I look at the source code it looks like, but will not try to
+    real understand this little bug format.
+
+0.3 (18/02/2009):
+  * [mbianchi] Fixed a serious bug in time parsing from seismic handler time 
+    string. The time string now parsed by the -/_/:/. characters instead of 
+    a fixed width.
+
+0.2 (27/01/2009):
+  * [mbianchi] Fixed bug in sac filename generation (parses.c) that created 
+    a filename with spaces that is illegible to sac program.
+
+0.1 (19/02/2008):
+  * [mbianchi] Fixed aleatory segfault bug on get_next_trace
+  * [mbianchi] Added -o option that will force overwrite of existing sac files
+  * [mbianchi] Created RELNOTES, version defined inside sh2sac.c and exported
+  inside sh2sac.c
+

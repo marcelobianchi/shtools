@@ -1,0 +1,102 @@
+#!/bin/tcsh
+## Author Raphael Garcia (garcia@ipgp.jussieu.fr)
+## Convert SAC files in SH files with all header parameters
+##
+## entry $1 = sac file
+## entry $2 = sh file
+##
+## necessitate the following softwares:
+## sac2000 or alternatively sactoasc from gsac software
+## SH (Seismic Handler)
+##
+##set SH_ROOT = "/home/garcia/sh"
+##set GSACDIR = "/home/garcia/src/PROGRAMS.330/bin/"
+##
+
+if ( $# < 2 ) then
+ echo "Need more arguments."
+ echo "  sac2sh <sac file> <SH filename> [Station coordinate file]" 
+ exit
+else if ( $# == 3 ) set statfile = $3
+endif
+
+if ( ! -f $1 ) then
+ echo "Input file not found."
+ exit
+endif
+
+set infile = $1
+set tmpfile = `basename $infile .sac`.asc
+set outfile = `echo $2 | awk '{print toupper($0) }'`
+
+if ( -f $outfile.QHD ) echo "SH file will be appended."
+
+# Converting SAC to ASCII
+if ( "Z`which sactoasc`" == "Z" ) then
+ echo "Converting using SAC from $infile to $tmpfile."
+ sac2000 << ENDSAC >& /dev/null
+  read $infile
+  write alpha $tmpfile
+  quit
+ENDSAC
+else 
+ echo "Converting using sactosac from $infile to $tmpfile."
+ sactoasc $infile $tmpfile >& /dev/null 
+endif
+
+## Converting ascii sac format to ascii SH format
+awk '{{if(NR==1){print "DELTA: ",$1}}{if(NR==16){print "LENGTH: ",$5}}{if(NR>30){print $0}}}' $tmpfile >  $outfile
+
+## Writing SH script for both reading ascii file and filling the header
+echo "shc << END > /dev/null" > convsh.tmp.sh
+
+## Reading ascii file
+echo "$outfile" > filename.tmp
+awk '{{print "reada ",$1}{print "write ",$1," all"}}' filename.tmp >> convsh.tmp.sh
+if ( -f filename.tmp ) rm filename.tmp
+
+## Filling Header
+
+## Test header version
+awk '{if(NR==16){if($2!=-12345.00&&$2!=6){{print "HEADER VERSION DIFFERENT FROM 6 \!\!"}{print "FILE CONVERSION COULD BE FALSE \!\!"}{print "CHECK THE HEADER PARAMETERS \!\!"}}}}' $tmpfile
+awk '{if(NR==2){if($1!=-12345.00){print "set 1 t-origin ",$1}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+## Latitude, longitude, depth and magnitude of the event
+awk '{if(NR==8){{if($1!=-12345.00){print "set/file 1 lat ",$1}}{if($2!=-12345.00){print "set/file 1 lon ",$2}}{if($4!=-12345.00){print "set/file 1 depth ",$4/1000.0}}{if($5!=-12345.00){print "set/file 1 magnitude ",$5}}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+## azimuth, distance
+awk '{if(NR==11){{if($2!=-12345.00){print "set/file 1 azimuth ",$3}}{if($4!=-12345.00){print "set/file 1 distance ",$4}}}}' $tmpfile >> convsh.tmp.sh
+awk '{if(NR==12){{if($4!=-12345.00){print "set/file 1 inci ",$4}}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+## START time
+awk '{{if(NR==15){{start="01-JAN-"$1"_00:00:00.000"}{addt=($2-1)*86400}{printf "%s%s%s%f","calc t &g1 = ",start," tadd ",addt}{print " "}{addt=($3*60.0+$4)*60.0+$5}}}{if(NR==16){{addt=addt+($1/1000.0)}{printf "%s%f","calc t &g2 = \"g1 tadd ",addt}{print " "}{print "set/file 1 start \"g2"}{exit}}}}' $tmpfile >> convsh.tmp.sh
+
+## event origin -> ORIGIN
+
+## and first arrvial -> P-ONSET
+awk '{if(NR==2){{if($3!=-12345.00){{print "calc t &g1 = \"g2 tadd ",$3}{print "set/file 1 origin \"g1 "}}}{if($4!=-12345.00){{print "calc t &g1 = \"g2 tadd ",$4}{print "set/file 1 P-ONSET \"g1 "}}}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+## station name -> STATION
+awk '{if(NR==23){{if($1!=-12345){print "set/file 1 station ",$1}}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+if ( $?statfile ) then
+  awk 'BEGIN {lat=0; lon=0; el=0; sta="NONE";} { if (NR==7) { if($2!=-12345) { lat=$2 } if($3!=-12345) { lon=$3 } if($4!=-12345) { el=$4 } } if (NR==23) { if ($1!=-12345) { sta=$1 } } } END {printf "%s lat:%f lon:%f elevation:%f name: Converted from SAC2SH \n",sta,lat,lon,el }' $tmpfile >> $statfile
+  sort -u $statfile  > temp
+  mv temp $statfile
+endif
+
+## component -> COMP
+awk '{if(NR==29){{if($3!=-12345){{chan=$3}{ind=length(chan)}{comp=substr(chan,ind,1)}{print "set/file 1 comp ",comp}}}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+## network -> PHASE
+awk '{if(NR==30){{if($1!=-12345){print "set/file 1 phase ",$1}}{exit}}}' $tmpfile >> convsh.tmp.sh
+
+echo "quit y"  >> convsh.tmp.sh
+echo END >> convsh.tmp.sh
+chmod 755 convsh.tmp.sh
+./convsh.tmp.sh
+
+if ( -f $tmpfile ) rm $tmpfile
+if ( -f convsh.tmp.sh ) rm convsh.tmp.sh
+if ( -f $outfile.QHD && -f $outfile ) rm $outfile
+
