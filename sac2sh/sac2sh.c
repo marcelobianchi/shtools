@@ -226,7 +226,6 @@ int makeshh(data *s)
     }
 
   /* P Onset */
-/*
   Dtemp = s->start;
   Dtempm = s->mstart;
   if (s->h.a != -12345.0){
@@ -236,7 +235,7 @@ int makeshh(data *s)
     fixms(&Dtempm, &Dtemp.tm_sec);
     mktime(&Dtemp);
     
-    sprintf(temp,"S022:%2d-%s-%4d_%02d:%02d:%02d.%03d~ ",
+    sprintf(temp,"S022: %2d-%s-%4d_%02d:%02d:%02d.%03d~ ",
 	    Dtemp.tm_mday,
 	    monthname[Dtemp.tm_mon+1],
 	    Dtemp.tm_year+1900,
@@ -245,10 +244,32 @@ int makeshh(data *s)
 	    Dtemp.tm_sec,
 	    Dtempm
 	    );
-    if (v) fprintf(stderr," START:> %s\n",temp);
+    if (v) fprintf(stderr," P-Pick:> %s\n",temp);
     copyto(&s->sh,temp);      
   }
-*/
+
+  /* S Onset */
+  Dtemp = s->start;
+  Dtempm = s->mstart;
+  if (s->h.a != -12345.0){
+    float value = s->h.t0 - s->h.b;
+    Dtemp.tm_sec += (int) value;
+    Dtempm       += (int) ( 1000 * (float)(value - (int)(value)) );
+    fixms(&Dtempm, &Dtemp.tm_sec);
+    mktime(&Dtemp);
+    
+    sprintf(temp,"S023: %2d-%s-%4d_%02d:%02d:%02d.%03d~ ",
+	    Dtemp.tm_mday,
+	    monthname[Dtemp.tm_mon+1],
+	    Dtemp.tm_year+1900,
+	    Dtemp.tm_hour,
+	    Dtemp.tm_min,
+	    Dtemp.tm_sec,
+	    Dtempm
+	    );
+    if (v) fprintf(stderr," S-Pick:> %s\n",temp);
+    copyto(&s->sh,temp);      
+  }
 
   /* O Onset */
   Dtemp = s->start;
