@@ -1,6 +1,6 @@
 
 all:
-	@mkdir bin
+	@mkdir -p bin
 	@make -C sh2sac
 	@make -C sac2sh
 

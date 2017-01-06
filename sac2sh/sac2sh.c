@@ -294,8 +294,6 @@ int makeshh(data *s)
     copyto(&s->sh,temp);      
   }
 
-
-
   /* Station name */
   {
     int min,max;
@@ -323,6 +321,36 @@ int makeshh(data *s)
     temp[j+1]=' ';
     temp[j+2]='\0';
     if (v) fprintf(stderr," STATION:> %s\n",temp);
+    copyto(&s->sh,temp);
+  }
+
+  /* Event Name */
+  {
+    int min,max;
+    char *pvar;
+    int i;
+    int j;
+
+    pvar=s->h.kevnm;
+    for(i=0,min=0;i<8;i++)
+      if (pvar[i]!=' '&& pvar[i] != '\0') 
+	{ 
+	  min=i;
+	  break;
+	}
+    
+    for(i=0,max=0;i<8;i++)
+      if (pvar[i] != ' ' && pvar[i] != '\0') max=i;
+    
+    strcpy(temp,"S000:");
+    for (i=min,j=5;i<max+1;i++,j++)
+      temp[j]=pvar[i];
+    
+    fprintf(stderr,"%d",j);
+    temp[j]='~';
+    temp[j+1]=' ';
+    temp[j+2]='\0';
+    if (v) fprintf(stderr," EVENT:> %s\n",temp);
     copyto(&s->sh,temp);
   }
 
