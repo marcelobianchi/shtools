@@ -325,7 +325,7 @@ int makeshh(data *s)
   }
 
   /* Event Name */
-  {
+  if (strncmp(s->h.kevnm,"-12345",6) != 0) {
     int min,max;
     char *pvar;
     int i;
