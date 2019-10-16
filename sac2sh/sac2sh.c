@@ -219,6 +219,15 @@ int makeshh(data * s)
     }
 
     /*
+     * Magnitude
+     */
+    if (s->h.mag != -12345.0){
+        sprintf(temp,"R015:%f~ ",s->h.mag);
+        if (v) fprintf(stderr," Mag:> %s\n",temp);
+        copyto(&s->sh,temp);
+    }
+
+    /*
      * Distance 
      */
     /*
